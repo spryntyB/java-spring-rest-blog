@@ -40,7 +40,7 @@ public class DatabaseLoader implements ApplicationRunner {
                 new Author("csouza", "Carlos",  "Souza", "password")
         ));
         authorRepository.saveAll( authors );
-        IntStream.range(0,400).forEach(i->{
+        IntStream.range(0,40).forEach(i->{
             String template = templates[i % templates.length];
             String gadget = gadgets[i % gadgets.length];
 
