@@ -15,27 +15,43 @@ import java.util.stream.IntStream;
 @Component
 public class DatabaseLoader implements ApplicationRunner {
     private final PostRepository postRepository;
+
+    private final AuthorRepository  authorRepository;
     private final String[] templates = {
             "Smart Home %s", "Mobile %s - For When You're On he Go", "The %s - Your New Favorite Accessory"};
     private final String[] gadgets = {
             "Earbuds", "Speakers", "Tripod", "Instant Pot", "Coffee Cup", "Keyboard", "Sunglasses"};
     public List<Post> randomPosts = new ArrayList<>();
     public List<Author> authors = new ArrayList<>();
+
     @Autowired
-    public DatabaseLoader(PostRepository postrep) {
+    public DatabaseLoader(PostRepository postrep, AuthorRepository authorRepository) {
         this.postRepository = postrep;
+        this.authorRepository = authorRepository;
     }
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
+
+        authors.addAll(Arrays.asList(
+                new Author("sholderness", "Sarah",  "Holderness", "password"),
+                new Author("tbell", "Tom",  "Bell", "password"),
+                new Author("efisher", "Eric",  "Fisher", "password"),
+                new Author("csouza", "Carlos",  "Souza", "password")
+        ));
+        authorRepository.saveAll( authors );
         IntStream.range(0,400).forEach(i->{
             String template = templates[i % templates.length];
             String gadget = gadgets[i % gadgets.length];
 
             String title = String.format(template, gadget);
             Post post = new Post(title, "Lorem ipsum dolor sit amet, consectetur adipiscing elit… ");
-            randomPosts.add(post);
+            int author_indx =  i % authors.size();
+            post.setAuthor( authors.get( author_indx ) );
+            authors.get( author_indx ).addPost( post );
+            randomPosts.add( post );
         });
         postRepository.saveAll( randomPosts );
+        authorRepository.saveAll( authors );
     }
 }
